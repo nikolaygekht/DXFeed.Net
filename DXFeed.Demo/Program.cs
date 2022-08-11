@@ -37,15 +37,40 @@ namespace DXFeed.Demo
             {
                 Console.WriteLine("exception: {0}", args.Exception.Message);
             };
-            
+
+            var token = GetToken();
+            var message = "[ {\"channel\" : \"/meta/handshake\"";
+            if (token != null)
+            {
+                message += ", \"ext\" : { ";
+                message += "\"com.devexperts.auth.AuthToken\" : \"";
+                message += token;
+                message += "\" }";
+            }
+            message += " } ]";
+
+
             communicator.Start();
-            communicator.Send("[{\"channel\":\"/meta/handshake\"}]");
+            communicator.Send(message);
 
             while (!received)
                 Thread.Sleep(10);
 
             communicator.Close();
         }
+
+        private static string? GetToken()
+        {
+            if (!string.IsNullOrEmpty(Configuration["dxfeed:token"]))
+                return Configuration["dxfeed:token"];
+            if (!string.IsNullOrEmpty(Configuration["dxfeed:tokenServlet"]))
+            {
+                var tokenFactory = new GehtsoftTokenFactory();
+                return tokenFactory.GetToken(Configuration["dxfeed:tokenServlet"], "testusert");
+            }
+            return null;
+        }
+
 
         public static IConfiguration? Configuration { get; private set; }
 
