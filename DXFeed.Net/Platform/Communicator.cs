@@ -58,6 +58,18 @@ namespace DXFeed.Net.Platform
                 mTransport.Dispose();           
         }
 
+        /// <summary>
+        /// Checks whether the communicator is active
+        /// </summary>
+        public bool Active
+        {
+            get
+            {
+                return mTransport.State == TransportState.Open && mReceiverThread.IsAlive && mSenderThread.IsAlive;
+            }
+        }
+
+
         public void Start()
         {
             mSenderThread.Start();

@@ -1,5 +1,4 @@
-﻿using DXFeed.Net.Message;
-using System;
+﻿using System;
 
 namespace DXFeed.Net.Platform
 {
@@ -8,6 +7,11 @@ namespace DXFeed.Net.Platform
     /// </summary>
     public interface ICommunicator : IDisposable
     {
+        /// <summary>
+        /// Checks whether the communicator is active
+        /// </summary>
+        bool Active { get; }
+
         /// <summary>
         /// Event raised when a sender is started
         /// </summary>
@@ -48,26 +52,6 @@ namespace DXFeed.Net.Platform
         /// </summary>
         /// <param name="message"></param>
         void Send(string message);
-    }
-
-    /// <summary>
-    /// Extensions for communicator to send messages
-    /// </summary>
-    public static class CommunicatorExtensions
-    {
-        /// <summary>
-        /// Sends a dxfeed message
-        /// </summary>
-        /// <param name="communicator"></param>
-        /// <param name="array"></param>
-        public static void Send(this ICommunicator communicator, IMessageElementArray array) => communicator.Send(array.SerializeToString());
-
-        /// <summary>
-        /// Packs an object into array and sends as a dxfeed message.
-        /// </summary>
-        /// <param name="communicator"></param>
-        /// <param name="object"></param>
-        public static void Send(this ICommunicator communicator, IMessageElementObject @object) => communicator.Send(new MessageElementArray() { @object });
     }
 
 }
