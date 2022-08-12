@@ -14,7 +14,12 @@
         /// </summary>
         public IMessageElement Value { get; set; }
 
-        internal MessageElementObjectProperty(string name, IMessageElement value)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public MessageElementObjectProperty(string name, IMessageElement value)
         {
             Name = name;
             Value = value;

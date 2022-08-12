@@ -12,5 +12,6 @@
         Integer,
         Long,
         Double,
+        Null,
     };
 }

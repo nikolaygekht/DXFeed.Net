@@ -9,6 +9,5 @@
         /// The value
         /// </summary>
         int Value { get; set; }
-
     }
 }

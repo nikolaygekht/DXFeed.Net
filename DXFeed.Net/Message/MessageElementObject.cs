@@ -38,5 +38,15 @@ namespace DXFeed.Net.Message
         public MessageElementObject() : base(MessageElementType.Object)
         {
         }
+
+        /// <summary>
+        /// Adds a new field
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="element"></param>
+        public void Add(string name, IMessageElement element)
+        {
+            this[name] = element;
+        }
     }
 }

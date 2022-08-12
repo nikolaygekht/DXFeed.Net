@@ -1,4 +1,5 @@
-﻿using DXFeed.Net.Platform;
+﻿using DXFeed.Net.Message;
+using DXFeed.Net.Platform;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,20 @@ namespace DXFeed.Demo
             communicator.MessageReceived += (sender, args) => 
             {
                 Console.WriteLine("received: {0}", args.Message);
+                var response = args.Message.DeserializeToMessage();
+                var message = response.ElementType switch
+                {
+                    MessageElementType.Array => response.As<IMessageElementArray>()[0].As<IMessageElementObject>(),
+                    MessageElementType.Object => response.As<IMessageElementObject>(),
+                    _ => null,
+                };
+
+                if (message != null && message.HasProperty("successful"))
+                    Console.WriteLine("Authentication is {0}", message["successful"].As<IMessageElementBoolean>().Value);
+
+                if (message != null && message.HasProperty("clientId"))
+                    Console.WriteLine("ClientID is {0}", message["clientId"].As<IMessageElementString>().Value);
+
                 received = true;
             };
 
@@ -39,15 +54,20 @@ namespace DXFeed.Demo
             };
 
             var token = GetToken();
-            var message = "[ {\"channel\" : \"/meta/handshake\"";
+
+            var message = new MessageElementObject()
+            {
+                { "channel", new MessageElementString("/meta/handshake") }
+            };
+
+
             if (token != null)
             {
-                message += ", \"ext\" : { ";
-                message += "\"com.devexperts.auth.AuthToken\" : \"";
-                message += token;
-                message += "\" }";
+                message["ext"] = new MessageElementObject()
+                {
+                    { "com.devexperts.auth.AuthToken", new MessageElementString(token) }
+                };
             }
-            message += " } ]";
 
 
             communicator.Start();
