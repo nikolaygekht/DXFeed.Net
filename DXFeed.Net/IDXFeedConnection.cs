@@ -15,7 +15,7 @@ namespace DXFeed.Net
         /// <summary>
         /// Current connection status.
         /// </summary>
-        DXFeedConnectionStatus Status { get; }
+        DXFeedConnectionState State { get; }
 
         /// <summary>
         /// Subscribe listener 

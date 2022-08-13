@@ -84,13 +84,13 @@ namespace DXFeed.Net.Test
             var thisTid = Thread.CurrentThread.ManagedThreadId;
             var eventTid = 0;
             IDXFeedConnection connectionPassed = null;
-            DXFeedConnectionStatus statusPassed = DXFeedConnectionStatus.Disconnected;
+            DXFeedConnectionState statusPassed = DXFeedConnectionState.Disconnected;
 
             var collection = new DXFeedConnectionListenerCollection();           
             var listener = new Mock<IDXFeedConnectionListener>();
 
-            listener.Setup(x => x.OnStatusChanged(It.IsAny<IDXFeedConnection>(), It.IsAny<DXFeedConnectionStatus>()))
-                .Callback<IDXFeedConnection, DXFeedConnectionStatus>((connection, status) =>
+            listener.Setup(x => x.OnStatusChanged(It.IsAny<IDXFeedConnection>(), It.IsAny<DXFeedConnectionState>()))
+                .Callback<IDXFeedConnection, DXFeedConnectionState>((connection, status) =>
                 {
                     eventTid = Thread.CurrentThread.ManagedThreadId;
                     connectionPassed = connection;
@@ -101,7 +101,7 @@ namespace DXFeed.Net.Test
             collection.SubscribeListener(listenerObject);
 
             var connection = new Mock<IDXFeedConnection>();
-            connection.Setup(x => x.Status).Returns(DXFeedConnectionStatus.Ready);
+            connection.Setup(x => x.State).Returns(DXFeedConnectionState.Ready);
 
             var connectionObject = connection.Object;
 
@@ -115,7 +115,7 @@ namespace DXFeed.Net.Test
                 .BeSameAs(connectionObject);
 
             statusPassed.Should()
-                .Be(DXFeedConnectionStatus.Ready);
+                .Be(DXFeedConnectionState.Ready);
         }
     }
 }

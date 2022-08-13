@@ -81,7 +81,7 @@ namespace DXFeed.Net
         }
 
         public Task CallStatusChange(IDXFeedConnection connection)
-            => CallListenersAsync((listener) => listener.OnStatusChanged(connection, connection.Status));
+            => CallListenersAsync((listener) => listener.OnStatusChanged(connection, connection.State));
 
         public Task CallException(IDXFeedConnection connection, Exception exception)
             => CallListenersAsync((listener) => listener.OnException(connection, exception));

@@ -3,12 +3,16 @@
     /// <summary>
     /// Connection status
     /// </summary>
-    public enum DXFeedConnectionStatus
+    public enum DXFeedConnectionState
     {
         /// <summary>
         /// Connected but need to be authorized
         /// </summary>
-        Connected,
+        ReadyToConnect,
+        /// <summary>
+        /// Connected but need to be authorized
+        /// </summary>
+        Connecting,
         /// <summary>
         /// Connected and ready to work
         /// </summary>

@@ -12,7 +12,7 @@ namespace DXFeed.Net
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="status"></param>
-        void OnStatusChanged(IDXFeedConnection connection, DXFeedConnectionStatus status);
+        void OnStatusChanged(IDXFeedConnection connection, DXFeedConnectionState status);
 
         /// <summary>
         /// The method called when exception raised in the exception
