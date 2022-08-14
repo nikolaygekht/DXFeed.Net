@@ -28,15 +28,10 @@ namespace DXFeed.Net.DXFeedMessage
         /// <param name="message"></param>
         public DXFeedHeartbeatResponse(IMessageElementObject message) : base(DXFeedResponseType.Heartbeat)
         {
-            if (message.HasProperty("clientId") && message["clientId"].ElementType == MessageElementType.String)
-                ClientId = message["clientId"].As<IMessageElementString>().Value;
-            if (message.HasProperty("successful"))
-            {
-                if (message["successful"].ElementType == MessageElementType.String)
-                    Successful = message["successful"].As<IMessageElementString>().Value == "true";
-                else if (message["successful"].ElementType == MessageElementType.Boolean)
-                    Successful = message["successful"].As<IMessageElementBoolean>().Value;
-            }
+            if (message.HasProperty("clientId") && message["clientId"].AsString(out var clientId))
+                ClientId = clientId;
+            if (message.HasProperty("successful") && message["successful"].AsBoolean(out var successful))
+                Successful = successful;
         }
     }
 }

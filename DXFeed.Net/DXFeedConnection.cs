@@ -18,14 +18,16 @@ namespace DXFeed.Net
         private readonly ICommunicator mCommunicator;
         private readonly bool mDisposeCommunicator;
         private readonly Thread mHeartbeatSender;
+        private readonly string mToken;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="communicator"></param>
         /// <param name="disposeCommunicator"></param>
-        public DXFeedConnection(ICommunicator communicator, bool disposeCommunicator)
+        public DXFeedConnection(string token, ICommunicator communicator, bool disposeCommunicator)
         {
+            mToken = token;
             mCommunicator = communicator;
             mDisposeCommunicator = disposeCommunicator;
             mCommunicator.SenderStarted += BackgroundStatus;
@@ -38,6 +40,11 @@ namespace DXFeed.Net
             {
                 IsBackground = true
             };
+            if (mCommunicator.Active)
+            {
+                mHeartbeatSender.Start();
+                Task.Run(() => Authorize());   //start authorization in background
+            }
         }
 
         /// <summary>
@@ -165,38 +172,73 @@ namespace DXFeed.Net
             }
         }
 
+        /// <summary>
+        /// Invokes the authorization
+        /// </summary>
+        private void Authorize()
+        {
+            mAuthorizationSend = true;
+            var message = new DXFeedMessageAuthorize(mToken);
+            mCommunicator.Send(message.ToMessage());
+        }
+
+        /// <summary>
+        /// Detects the type of the message and routes it to proper processor it
+        /// </summary>
+        /// <param name="object"></param>
         private void ProcessMessage(IMessageElementObject @object)
         {
             var message = DXFeedResponseParser.Parse(@object);
             if (message == null)
                 return;
-            if (message is DXFeedAuthorizeResponse authorize)
+
+            switch (message)
+            {
+                case DXFeedAuthorizeResponse authorize:
+                    Process(authorize);
+                    break;
+                case DXFeedHeartbeatResponse heartbeat:
+                    Process(heartbeat);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Process response for an authorization message
+        /// </summary>
+        /// <param name="authorize"></param>
+        private void Process(DXFeedAuthorizeResponse authorize)
+        {
+            mAuthorizationSend = false;
+            if (authorize.Successful && !string.IsNullOrEmpty(authorize.ClientId))
+            {
+                mHeartbeatResponseReceived = false;
+                ClientId = authorize.ClientId;
+                if (authorize.Advice != null && authorize.Advice.Timeout != null)
+                    HeartbitPeriod = authorize.Advice.Timeout.Value;
+
+                var heartbeat = new DXFeedMessageHeartbeat(ClientId);
+                mCommunicator.Send(heartbeat.ToMessage());
+            }
+        }
+
+        private void Process(DXFeedHeartbeatResponse heartbeat)
+        {
+            if (heartbeat.Successful)
+            {
+                mHeartbeatResponseReceived = true;
+                if (!string.IsNullOrEmpty(heartbeat.ClientId))
+                    ClientId = heartbeat.ClientId;
+                CallStatusChange();
+            }
+            else
             {
                 mAuthorizationSend = false;
-                if (authorize.Successful && !string.IsNullOrEmpty(authorize.ClientId))
-                {
-                    ClientId = authorize.ClientId;
-                    if (authorize.Advice != null && authorize.Advice.Timeout != null)
-                        HeartbitPeriod = authorize.Advice.Timeout.Value;
-                    
-                    //TBD: send first heartbeat!
-                }
+                mHeartbeatResponseReceived = false;
+                ClientId = null;
+                CallStatusChange();
             }
-            else if (message is DXFeedHeartbeatResponse heartbeat)
-            {
-                if (heartbeat.Successful)
-                {
-                    mHeartbeatResponseReceived = true;
-                    if (!string.IsNullOrEmpty(heartbeat.ClientId))
-                        ClientId = heartbeat.ClientId;
-                    CallStatusChange();
-                }
-                else
-                {
-                    ClientId = null;
-                    CallStatusChange();
-                }
-            }
+
         }
 
         /// <summary>
@@ -205,9 +247,14 @@ namespace DXFeed.Net
         private void CallStatusChange()
         {
             mListeners.CallStatusChange(this);
-            
+
             if (State == DXFeedConnectionState.Ready && !mHeartbeatSender.IsAlive)
+            {
                 mHeartbeatSender.Start();
+
+                if (!mAuthorizationSend && mCommunicator.Active)
+                    Task.Run(() => Authorize());
+            }
             else if (State != DXFeedConnectionState.Ready && mHeartbeatSender.IsAlive)
                 mStopHeartbit.Set();
         }
@@ -238,7 +285,8 @@ namespace DXFeed.Net
 
                     if (!string.IsNullOrEmpty(ClientId))
                     {
-                        //TBD: send heartbeat
+                        var message = new DXFeedMessageHeartbeat(ClientId);
+                        mCommunicator.Send(message.ToMessage());
                     }
                 }
                 catch (Exception e)
@@ -247,8 +295,5 @@ namespace DXFeed.Net
                 }
             }
         }
-
-        //TBD: Authorization method
-
     }
 }

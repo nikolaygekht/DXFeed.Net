@@ -81,9 +81,9 @@ namespace DXFeed.Demo
 
         private static string? GetToken()
         {
-            if (!string.IsNullOrEmpty(Configuration["dxfeed:token"]))
+            if (!string.IsNullOrEmpty(Configuration?["dxfeed:token"]))
                 return Configuration["dxfeed:token"];
-            if (!string.IsNullOrEmpty(Configuration["dxfeed:tokenServlet"]))
+            if (!string.IsNullOrEmpty(Configuration?["dxfeed:tokenServlet"]))
             {
                 var tokenFactory = new GehtsoftTokenFactory();
                 return tokenFactory.GetToken(Configuration["dxfeed:tokenServlet"], "testusert");

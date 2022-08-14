@@ -31,12 +31,10 @@ namespace DXFeed.Net.DXFeedMessage
         /// <param name="message"></param>
         public DXFeedAuthorizeResponse(IMessageElementObject message) : base(DXFeedResponseType.Heartbeat)
         {
-            if (message.HasProperty<IMessageElementString>("clientId", out var clientId))
-                ClientId = clientId?.Value;
-            if (message.HasProperty<IMessageElementString>("successful", out var successfulString))
-                Successful = successfulString?.Value == "true";
-            if (message.HasProperty<IMessageElementBoolean>("successful", out var succesfulBoolean))
-                Successful = succesfulBoolean?.Value ?? false;
+            if (message.HasProperty("clientId") && message["clientId"].AsString(out var clientId))
+                ClientId = clientId;
+            if (message.HasProperty("successful") && message["successful"].AsBoolean(out var successful))
+                Successful = successful;
             if (message.HasProperty<IMessageElementObject>("advice", out var advice))
             {
                 Advice = ParseAdvice(advice);
@@ -50,12 +48,15 @@ namespace DXFeed.Net.DXFeedMessage
             int? interval = null, timeout = null;
             string? reconnect = null;
 
-            if (advice.HasProperty<IMessageElementInteger>("interval", out var intervalValue))
-                interval = intervalValue?.Value;
-            if (advice.HasProperty<IMessageElementInteger>("timeout", out var timeoutValue))
-                timeout = timeoutValue?.Value;
-            if (advice.HasProperty<IMessageElementString>("reconnect", out var reconnectValue))
-                reconnect = reconnectValue?.Value;
+            if (advice.HasProperty("interval") && advice["interval"].AsInteger(out var intervalValue))
+                interval = intervalValue;
+            
+            if (advice.HasProperty("timeout") && advice["timeout"].AsInteger(out var timeoutValue))
+                timeout = timeoutValue;
+
+            if (advice.HasProperty("timeout") && advice["timeout"].AsString(out var reconnectValue))
+                reconnect = reconnectValue;
+
             return new DXFeedAdvice(interval, timeout, reconnect);
         }
     }

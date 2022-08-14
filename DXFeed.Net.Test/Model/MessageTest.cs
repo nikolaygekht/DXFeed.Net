@@ -66,8 +66,11 @@ namespace DXFeed.Net.Test.Model
         [Fact]
         public void Object_AssignProperty()
         {
-            var message = new MessageElementObject();
-            message["name"] = new MessageElementString("123");
+            var message = new MessageElementObject
+            {
+                ["name"] = new MessageElementString("123")
+            };
+            
             message.HasProperty("name").Should().BeTrue();
             ((Action)(() => _ = message["name"])).Should().NotThrow();
 
@@ -81,8 +84,10 @@ namespace DXFeed.Net.Test.Model
         [Fact]
         public void Object_ReassignProperty()
         {
-            var message = new MessageElementObject();
-            message["name"] = new MessageElementInteger(123);
+            var message = new MessageElementObject
+            {
+                ["name"] = new MessageElementInteger(123),
+            };
 
             message["name"] = new MessageElementString("123");
 
@@ -99,9 +104,11 @@ namespace DXFeed.Net.Test.Model
         [Fact]
         public void Object_AssignTwoProperties()
         {
-            var message = new MessageElementObject();
-            message["name1"] = new MessageElementInteger(123);
-            message["name2"] = new MessageElementString("123");
+            var message = new MessageElementObject()
+            {
+                ["name1"] = new MessageElementInteger(123),
+                ["name2"] = new MessageElementString("123")
+            };
 
             message.Should()
                 .HaveCount(2)
@@ -188,6 +195,98 @@ namespace DXFeed.Net.Test.Model
             array.Should().Contain(x => object.ReferenceEquals(x, i2));
         }
 
+        [Theory]
+        [InlineData(false, null, typeof(MessageElementObject))]
+        [InlineData(false, null, typeof(MessageElementArray))]
+        [InlineData(false, null, typeof(MessageElementNull))]
+        [InlineData(true, "123", typeof(MessageElementInteger), 123)]
+        [InlineData(true, "123", typeof(MessageElementLong), 123L)]
+        [InlineData(true, "1.23", typeof(MessageElementDouble), 1.23)]
+        [InlineData(true, "true", typeof(MessageElementBoolean), true)]
+        [InlineData(true, "false", typeof(MessageElementBoolean), false)]
+        [InlineData(true, "abc", typeof(MessageElementString), "abc")]
+        public void AsString(bool expectedResult, string extpectedOutput, Type elementType, object constructorParameterValue = null)
+        {
+            var obj = MessageTestTools.CreateMessageElement(elementType, constructorParameterValue == null ? 0 : 1, constructorParameterValue);
+            obj.AsString(out var output).Should().Be(expectedResult);
+            if (expectedResult)
+                output.Should().Be(extpectedOutput);
+        }
+
+        [Theory]
+        [InlineData(false, false, typeof(MessageElementObject))]
+        [InlineData(false, false, typeof(MessageElementArray))]
+        [InlineData(false, false, typeof(MessageElementNull))]
+        [InlineData(false, false, typeof(MessageElementInteger), 123)]
+        [InlineData(false, false, typeof(MessageElementLong), 123L)]
+        [InlineData(false, false, typeof(MessageElementDouble), 1.23)]
+        [InlineData(true, true, typeof(MessageElementBoolean), true)]
+        [InlineData(true, false, typeof(MessageElementBoolean), false)]
+        [InlineData(false, false, typeof(MessageElementString), "abc")]
+        [InlineData(true, true, typeof(MessageElementString), "true")]
+        [InlineData(true, false, typeof(MessageElementString), "false")]
+        public void AsBoolean(bool expectedResult, bool extpectedOutput, Type elementType, object constructorParameterValue = null)
+        {
+            var obj = MessageTestTools.CreateMessageElement(elementType, constructorParameterValue == null ? 0 : 1, constructorParameterValue);
+            obj.AsBoolean(out var output).Should().Be(expectedResult);
+            if (expectedResult)
+                output.Should().Be(extpectedOutput);
+        }
+
+        [Theory]
+        [InlineData(false, 0, typeof(MessageElementObject))]
+        [InlineData(false, 0, typeof(MessageElementArray))]
+        [InlineData(false, 0, typeof(MessageElementNull))]
+        [InlineData(true, 123, typeof(MessageElementInteger), 123)]
+        [InlineData(true, 123L, typeof(MessageElementLong), 123L)]
+        [InlineData(true, 1, typeof(MessageElementDouble), 1.23)]
+        [InlineData(false, 0, typeof(MessageElementBoolean), true)]
+        [InlineData(false, 0, typeof(MessageElementString), "abc")]
+        [InlineData(true, 123, typeof(MessageElementString), "123")]
+        public void AsInteger(bool expectedResult, int extpectedOutput, Type elementType, object constructorParameterValue = null)
+        {
+            var obj = MessageTestTools.CreateMessageElement(elementType, constructorParameterValue == null ? 0 : 1, constructorParameterValue);
+            obj.AsInteger(out var output).Should().Be(expectedResult);
+            if (expectedResult)
+                output.Should().Be(extpectedOutput);
+        }
+
+        [Theory]
+        [InlineData(false, 0, typeof(MessageElementObject))]
+        [InlineData(false, 0, typeof(MessageElementArray))]
+        [InlineData(false, 0, typeof(MessageElementNull))]
+        [InlineData(true, 123L, typeof(MessageElementInteger), 123)]
+        [InlineData(true, 123L, typeof(MessageElementLong), 123L)]
+        [InlineData(true, 1, typeof(MessageElementDouble), 1.23)]
+        [InlineData(false, 0, typeof(MessageElementBoolean), true)]
+        [InlineData(false, 0, typeof(MessageElementString), "abc")]
+        [InlineData(true, 123L, typeof(MessageElementString), "123")]
+        public void AsLong(bool expectedResult, long extpectedOutput, Type elementType, object constructorParameterValue = null)
+        {
+            var obj = MessageTestTools.CreateMessageElement(elementType, constructorParameterValue == null ? 0 : 1, constructorParameterValue);
+            obj.AsLong(out var output).Should().Be(expectedResult);
+            if (expectedResult)
+                output.Should().Be(extpectedOutput);
+        }
+
+        [Theory]
+        [InlineData(false, 0, typeof(MessageElementObject))]
+        [InlineData(false, 0, typeof(MessageElementArray))]
+        [InlineData(false, 0, typeof(MessageElementNull))]
+        [InlineData(true, 123.0, typeof(MessageElementInteger), 123)]
+        [InlineData(true, 123.0, typeof(MessageElementLong), 123L)]
+        [InlineData(true, 1.23, typeof(MessageElementDouble), 1.23)]
+        [InlineData(false, 0, typeof(MessageElementBoolean), true)]
+        [InlineData(false, 0, typeof(MessageElementString), "abc")]
+        [InlineData(true, 123.0, typeof(MessageElementString), "123")]
+        [InlineData(true, 1.23, typeof(MessageElementString), "1.23")]
+        public void AsDouble(bool expectedResult, double extpectedOutput, Type elementType, object constructorParameterValue = null)
+        {
+            var obj = MessageTestTools.CreateMessageElement(elementType, constructorParameterValue == null ? 0 : 1, constructorParameterValue);
+            obj.AsDouble(out var output).Should().Be(expectedResult);
+            if (expectedResult)
+                output.Should().Be(extpectedOutput);
+        }
     }
 }
 

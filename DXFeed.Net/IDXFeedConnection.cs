@@ -10,7 +10,7 @@ namespace DXFeed.Net
         /// <summary>
         /// Id of the current client session
         /// </summary>
-        string ClientId { get; }
+        string? ClientId { get; }
 
         /// <summary>
         /// Current connection status.
