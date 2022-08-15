@@ -33,7 +33,7 @@ class DXFeedConnection {
 class IDXFeedConnectionListener
 <<interface>>IDXFeedConnectionListener
 
-DXFeedConnection *--> IDXFeedConnectionListener : invokes
+DXFeedConnection *--> "*" IDXFeedConnectionListener : <<invokes>>
 ```
 
 ## Establishing Connection 
@@ -43,11 +43,11 @@ The connection is established after the following exchange:
 ```mermaid
 sequenceDiagram
     Client ->> Application : state: connecting
-    Client ->> Server : handshake(token)
-    Server -->> Client : handshake response (clientid)
-    Client ->> Server : heartbit (clientid)
-    Server -->> Client : response (success)
-    Client -> Application : state: ready to subscribe
+    Client -) Server : handshake(token)
+    Server --) Client : handshake response (clientid)
+    Client -) Server : heartbit (clientid)
+    Server --) Client : response (success)
+    Client ->> Application : state: ready to subscribe
 ```
 
 The connection state machine is
