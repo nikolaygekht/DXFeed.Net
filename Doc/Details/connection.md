@@ -33,7 +33,7 @@ class DXFeedConnection {
 class IDXFeedConnectionListener
 <<interface>>IDXFeedConnectionListener
 
-DXFeedConnection *--> "*" IDXFeedConnectionListener : <<invokes>>
+DXFeedConnection *--> "*" IDXFeedConnectionListener : "invokes"
 ```
 
 ## Establishing Connection 
