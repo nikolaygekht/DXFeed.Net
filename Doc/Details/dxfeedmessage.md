@@ -48,7 +48,7 @@ DXFeedResponseAuthorize --|> DXFeedResponse
 
 DXFeedResponseHeartbeat --|> DXFeedResponse
 
-DXFeedResponseAuthorize *-- DXFeedAdvice
+DXFeedResponseAuthorize *-- "0..1" DXFeedAdvice
 
 
 ```
