@@ -36,9 +36,9 @@ namespace DXFeed.Net.DXFeedMessage
         }
 
         private static IDXFeedResponse ParseConnectResponse(IMessageElementObject message)
-            => new DXFeedHeartbeatResponse(message);
+            => new DXFeedResponseHeartbeat(message);
 
         private static IDXFeedResponse ParseHandshakeResponse(IMessageElementObject message)
-            => new DXFeedAuthorizeResponse(message);
+            => new DXFeedResponseAuthorize(message);
     }
 }

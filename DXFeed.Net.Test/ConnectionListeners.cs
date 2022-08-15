@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Extension.Json;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using Xunit;
 
 namespace DXFeed.Net.Test
 {
-    public class ConnectionListenerTest
+    public class ConnectionListeners
     {
         [Fact]
         public void Subscribe()
@@ -101,7 +102,7 @@ namespace DXFeed.Net.Test
             collection.SubscribeListener(listenerObject);
 
             var connection = new Mock<IDXFeedConnection>();
-            connection.Setup(x => x.State).Returns(DXFeedConnectionState.Ready);
+            connection.Setup(x => x.State).Returns(DXFeedConnectionState.ReadyToSubscribe);
 
             var connectionObject = connection.Object;
 
@@ -115,7 +116,7 @@ namespace DXFeed.Net.Test
                 .BeSameAs(connectionObject);
 
             statusPassed.Should()
-                .Be(DXFeedConnectionState.Ready);
+                .Be(DXFeedConnectionState.ReadyToSubscribe);
         }
     }
 }

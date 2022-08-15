@@ -3,7 +3,7 @@ using FluentAssertions;
 using System;
 using System.Reflection;
 
-namespace DXFeed.Net.Test.Model
+namespace DXFeed.Net.Test.CometMessages
 {
     internal static class MessageTestTools
     {

@@ -5,7 +5,7 @@ namespace DXFeed.Net.DXFeedMessage
     /// <summary>
     /// Response to a heartbeat
     /// </summary>
-    public class DXFeedHeartbeatResponse : DXFeedResponse
+    public class DXFeedResponseHeartbeat : DXFeedResponse
     {
         /// <summary>
         /// If heartbeat successful
@@ -26,7 +26,7 @@ namespace DXFeed.Net.DXFeedMessage
         /// Constructor
         /// </summary>
         /// <param name="message"></param>
-        public DXFeedHeartbeatResponse(IMessageElementObject message) : base(DXFeedResponseType.Heartbeat)
+        public DXFeedResponseHeartbeat(IMessageElementObject message) : base(DXFeedResponseType.Heartbeat)
         {
             if (message.HasProperty("clientId") && message["clientId"].AsString(out var clientId))
                 ClientId = clientId;

@@ -5,7 +5,7 @@ namespace DXFeed.Net.DXFeedMessage
     /// <summary>
     /// Response to the authorization
     /// </summary>
-    public class DXFeedAuthorizeResponse : DXFeedResponse
+    public class DXFeedResponseAuthorize : DXFeedResponse
     {
         public DXFeedAdvice? Advice { get; }
 
@@ -29,7 +29,7 @@ namespace DXFeed.Net.DXFeedMessage
         /// Constructor
         /// </summary>
         /// <param name="message"></param>
-        public DXFeedAuthorizeResponse(IMessageElementObject message) : base(DXFeedResponseType.Heartbeat)
+        public DXFeedResponseAuthorize(IMessageElementObject message) : base(DXFeedResponseType.Authorize)
         {
             if (message.HasProperty("clientId") && message["clientId"].AsString(out var clientId))
                 ClientId = clientId;
@@ -54,7 +54,7 @@ namespace DXFeed.Net.DXFeedMessage
             if (advice.HasProperty("timeout") && advice["timeout"].AsInteger(out var timeoutValue))
                 timeout = timeoutValue;
 
-            if (advice.HasProperty("timeout") && advice["timeout"].AsString(out var reconnectValue))
+            if (advice.HasProperty("reconnect") && advice["reconnect"].AsString(out var reconnectValue))
                 reconnect = reconnectValue;
 
             return new DXFeedAdvice(interval, timeout, reconnect);

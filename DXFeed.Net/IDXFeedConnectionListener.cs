@@ -11,8 +11,8 @@ namespace DXFeed.Net
         /// The method called when connection status is changed
         /// </summary>
         /// <param name="connection"></param>
-        /// <param name="status"></param>
-        void OnStatusChanged(IDXFeedConnection connection, DXFeedConnectionState status);
+        /// <param name="state"></param>
+        void OnStatusChanged(IDXFeedConnection connection, DXFeedConnectionState state);
 
         /// <summary>
         /// The method called when exception raised in the exception

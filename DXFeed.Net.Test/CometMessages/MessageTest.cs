@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DXFeed.Net.Test.Model
+namespace DXFeed.Net.Test.CometMessages
 {
 
     public class MessageTest

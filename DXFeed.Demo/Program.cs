@@ -1,4 +1,5 @@
-﻿using DXFeed.Net.Message;
+﻿using DXFeed.Net;
+using DXFeed.Net.Message;
 using DXFeed.Net.Platform;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -24,59 +25,14 @@ namespace DXFeed.Demo
 
             var transport = TransportFactory.CreateWebsocketTransport();
             transport.Connect(Configuration["dxfeed:url"]);
-            
+
             using var communicator = new Communicator(transport, true);
-            bool received = false;
-            
-            communicator.MessageReceived += (sender, args) => 
-            {
-                Console.WriteLine("received: {0}", args.Message);
-                var response = args.Message.DeserializeToMessage();
-                var message = response.ElementType switch
-                {
-                    MessageElementType.Array => response.As<IMessageElementArray>()[0].As<IMessageElementObject>(),
-                    MessageElementType.Object => response.As<IMessageElementObject>(),
-                    _ => null,
-                };
-
-                if (message != null && message.HasProperty("successful"))
-                    Console.WriteLine("Authentication is {0}", message["successful"].As<IMessageElementBoolean>().Value);
-
-                if (message != null && message.HasProperty("clientId"))
-                    Console.WriteLine("ClientID is {0}", message["clientId"].As<IMessageElementString>().Value);
-
-                received = true;
-            };
-
-            communicator.ExceptionRaised += (sender, args) =>
-            {
-                Console.WriteLine("exception: {0}", args.Exception.Message);
-            };
-
-            var token = GetToken();
-
-            var message = new MessageElementObject()
-            {
-                { "channel", new MessageElementString("/meta/handshake") }
-            };
-
-
-            if (token != null)
-            {
-                message["ext"] = new MessageElementObject()
-                {
-                    { "com.devexperts.auth.AuthToken", new MessageElementString(token) }
-                };
-            }
-
+            using var connection = new DXFeedConnection(GetToken(), communicator, false);
+            connection.SubscribeListener(new Listener());
 
             communicator.Start();
-            communicator.Send(message);
 
-            while (!received)
-                Thread.Sleep(10);
-
-            communicator.Close();
+            while (Console.ReadKey().Key != ConsoleKey.Escape) ;
         }
 
         private static string? GetToken()

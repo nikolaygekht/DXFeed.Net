@@ -16,7 +16,7 @@
         /// <summary>
         /// Connected and ready to work
         /// </summary>
-        Ready,
+        ReadyToSubscribe,
         /// <summary>
         /// Disconnected.
         /// </summary>

@@ -5,7 +5,7 @@ using System;
 using System.Threading.Channels;
 using Xunit;
 
-namespace DXFeed.Net.Test.Model
+namespace DXFeed.Net.Test.CometMessages
 {
     public class MessageSerializerTest
     {
@@ -65,7 +65,7 @@ namespace DXFeed.Net.Test.Model
         [Fact]
         public void Deserialization_Object()
         {
-            var message = "{\"minimumVersion\":\"1.0\",\"clientId\":\"13firliu4sxz3b1gaicvnd90b04\",\"supportedConnectionTypes\":[\"websocket\"],\"advice\":{\"interval\":0,\"timeout\":30000,\"reconnect\":\"retry\"},\"channel\":\"/meta/handshake\",\"version\":\"1.0\",\"successful\":true}".DeserializeToMessage();
+            var message = "{\"minimumVersion\":\"1.0\",\"clientId\":\"13farleu4sxZ3b1guicVNd85b44\",\"supportedConnectionTypes\":[\"websocket\"],\"advice\":{\"interval\":0,\"timeout\":30000,\"reconnect\":\"retry\"},\"channel\":\"/meta/handshake\",\"version\":\"1.0\",\"successful\":true}".DeserializeToMessage();
 
             message.ElementType.Should().Be(MessageElementType.Object);
             var @object = message.As<IMessageElementObject>();
@@ -79,7 +79,7 @@ namespace DXFeed.Net.Test.Model
             @object.HasProperty("clientId").Should().BeTrue();
             @object["clientId"]
                 .Should().BeAssignableTo<IMessageElementString>()
-                .Which.Value.Should().Be("13firliu4sxz3b1gaicvnd90b04");
+                .Which.Value.Should().Be("13farleu4sxZ3b1guicVNd85b44");
 
             @object.HasProperty("supportedConnectionTypes").Should().BeTrue();
             @object["supportedConnectionTypes"]

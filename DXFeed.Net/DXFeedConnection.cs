@@ -17,7 +17,7 @@ namespace DXFeed.Net
     {
         private readonly ICommunicator mCommunicator;
         private readonly bool mDisposeCommunicator;
-        private readonly Thread mHeartbeatSender;
+        private Thread mHeartbeatSender;
         private readonly string mToken;
 
         /// <summary>
@@ -36,15 +36,8 @@ namespace DXFeed.Net
             mCommunicator.ReceiverStopped += BackgroundStatus;
             mCommunicator.ExceptionRaised += ExceptionRaised;
             mCommunicator.MessageReceived += MessageReceived;
-            mHeartbeatSender = new Thread(HeartbeatSender)
-            {
-                IsBackground = true
-            };
             if (mCommunicator.Active)
-            {
-                mHeartbeatSender.Start();
                 Task.Run(() => Authorize());   //start authorization in background
-            }
         }
 
         /// <summary>
@@ -72,6 +65,9 @@ namespace DXFeed.Net
         {
             if (mDisposeCommunicator)
                 mCommunicator.Dispose();
+
+            if (mHeartbeatSender.IsAlive)
+                mStopHeartbit.Set();
         }
 
         /// <summary>
@@ -85,9 +81,8 @@ namespace DXFeed.Net
             {
                 ClientId = null;
                 mHeartbeatResponseReceived = false;
-                mAuthorizationSend = false;
+                mAuthorizationSent = false;
             }
-
             CallStatusChange();
         }
 
@@ -107,7 +102,7 @@ namespace DXFeed.Net
         public string? ClientId { get; private set; }
 
         private bool mHeartbeatResponseReceived;
-        private bool mAuthorizationSend;
+        private bool mAuthorizationSent;
 
         /// <summary>
         /// Current connection status.
@@ -119,11 +114,11 @@ namespace DXFeed.Net
                 if (!mCommunicator.Active)
                     return DXFeedConnectionState.Disconnected;
                 if (string.IsNullOrEmpty(ClientId))
-                    return mAuthorizationSend ? DXFeedConnectionState.Connecting : DXFeedConnectionState.ReadyToConnect;
-                else if (mHeartbeatResponseReceived)
+                    return mAuthorizationSent ? DXFeedConnectionState.Connecting : DXFeedConnectionState.ReadyToConnect;
+                else if (!mHeartbeatResponseReceived)
                     return DXFeedConnectionState.Connecting;
                 else
-                    return DXFeedConnectionState.Ready;
+                    return DXFeedConnectionState.ReadyToSubscribe;
             }
         }
 
@@ -177,7 +172,17 @@ namespace DXFeed.Net
         /// </summary>
         private void Authorize()
         {
-            mAuthorizationSend = true;
+            mAuthorizationSent = true;
+
+            if (mHeartbeatSender == null || !mHeartbeatSender.IsAlive)
+            {
+                mHeartbeatSender = new Thread(HeartbeatSender)
+                {
+                    IsBackground = true,
+                };
+                mHeartbeatSender.Start();
+            }
+
             var message = new DXFeedMessageAuthorize(mToken);
             mCommunicator.Send(message.ToMessage());
         }
@@ -194,10 +199,10 @@ namespace DXFeed.Net
 
             switch (message)
             {
-                case DXFeedAuthorizeResponse authorize:
+                case DXFeedResponseAuthorize authorize:
                     Process(authorize);
                     break;
-                case DXFeedHeartbeatResponse heartbeat:
+                case DXFeedResponseHeartbeat heartbeat:
                     Process(heartbeat);
                     break;
             }
@@ -207,9 +212,8 @@ namespace DXFeed.Net
         /// Process response for an authorization message
         /// </summary>
         /// <param name="authorize"></param>
-        private void Process(DXFeedAuthorizeResponse authorize)
+        private void Process(DXFeedResponseAuthorize authorize)
         {
-            mAuthorizationSend = false;
             if (authorize.Successful && !string.IsNullOrEmpty(authorize.ClientId))
             {
                 mHeartbeatResponseReceived = false;
@@ -222,7 +226,7 @@ namespace DXFeed.Net
             }
         }
 
-        private void Process(DXFeedHeartbeatResponse heartbeat)
+        private void Process(DXFeedResponseHeartbeat heartbeat)
         {
             if (heartbeat.Successful)
             {
@@ -233,7 +237,7 @@ namespace DXFeed.Net
             }
             else
             {
-                mAuthorizationSend = false;
+                mAuthorizationSent = false;
                 mHeartbeatResponseReceived = false;
                 ClientId = null;
                 CallStatusChange();
@@ -247,16 +251,20 @@ namespace DXFeed.Net
         private void CallStatusChange()
         {
             mListeners.CallStatusChange(this);
-
-            if (State == DXFeedConnectionState.Ready && !mHeartbeatSender.IsAlive)
+            var state = State;
+            if (state != DXFeedConnectionState.Disconnected && (mHeartbeatSender == null || !mHeartbeatSender.IsAlive))
             {
+                mHeartbeatSender = new Thread(HeartbeatSender)
+                {
+                    IsBackground = true
+                };
                 mHeartbeatSender.Start();
-
-                if (!mAuthorizationSend && mCommunicator.Active)
-                    Task.Run(() => Authorize());
             }
-            else if (State != DXFeedConnectionState.Ready && mHeartbeatSender.IsAlive)
+            else if (state == DXFeedConnectionState.Disconnected && mHeartbeatSender.IsAlive)
                 mStopHeartbit.Set();
+            if (state == DXFeedConnectionState.ReadyToConnect && !mAuthorizationSent)
+                Task.Run(() => Authorize());
+
         }
 
         /// <summary>
@@ -267,9 +275,9 @@ namespace DXFeed.Net
         /// <summary>
         /// The period to send heartbit message in milliseconds
         /// 
-        /// dxfeed recommends 30 seconds
+        /// This value will be updated later from the authorization response
         /// </summary>
-        public int HeartbitPeriod { get; set; } = 30000;
+        public int HeartbitPeriod { get; set; } = 5000;
 
         /// <summary>
         /// The background thread to send heartbeat

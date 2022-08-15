@@ -52,13 +52,13 @@ namespace DXFeed.Net.Test.Platform
 
             
             communication.Start();
-            
-            Wait(() => started, 5000);
+
+            Tools.Wait(() => started, 5000);
             started.Should().BeTrue();
             
             communication.Close();
 
-            Wait(() => stopped, 5000);
+            Tools.Wait(() => stopped, 5000);
             stopped.Should().BeTrue();
         }
 
@@ -76,12 +76,12 @@ namespace DXFeed.Net.Test.Platform
 
             communication.Start();
 
-            Wait(() => started, 5000);
+            Tools.Wait(() => started, 5000);
             started.Should().BeTrue();
 
             communication.Close();
 
-            Wait(() => stopped, 5000);
+            Tools.Wait(() => stopped, 5000);
             stopped.Should().BeTrue();
         }
 
@@ -110,7 +110,7 @@ namespace DXFeed.Net.Test.Platform
             communication.Start();
 
             communication.Send("a");
-            Wait(() => exception != null, 5000);
+            Tools.Wait(() => exception != null, 5000);
 
             exception.Should()
                 .NotBeNull()
@@ -121,7 +121,7 @@ namespace DXFeed.Net.Test.Platform
             stopped.Should().BeFalse();
 
             communication.Send("b");
-            Wait(() => sent, 5000);
+            Tools.Wait(() => sent, 5000);
 
             sent.Should().BeTrue();
 
@@ -151,10 +151,10 @@ namespace DXFeed.Net.Test.Platform
             communication.ExceptionRaised += (sender, args) => exception = args.Exception;
 
             communication.Start();
-            Wait(() => started, 5000);
+            Tools.Wait(() => started, 5000);
             started.Should().BeTrue();
 
-            Wait(() => exception != null, 5000);
+            Tools.Wait(() => exception != null, 5000);
             exception.Should()
                 .NotBeNull()
                 .And.BeOfType<ArgumentException>()
@@ -163,7 +163,7 @@ namespace DXFeed.Net.Test.Platform
             stopped.Should().BeFalse();
 
             communication.Close();
-            Wait(() => stopped, 5000);
+            Tools.Wait(() => stopped, 5000);
             stopped.Should().BeTrue();
         }
 
@@ -192,13 +192,13 @@ namespace DXFeed.Net.Test.Platform
             communication.ExceptionRaised += (sender, args) => exception = args.Exception;
 
             communication.Start();
-            Wait(() => started, 5000);
+            Tools.Wait(() => started, 5000);
             started.Should().BeTrue();
 
             exiting = true;
             communication.Close();
 
-            Wait(() => stopped, 5000);
+            Tools.Wait(() => stopped, 5000);
 
             exception.Should().BeNull();
             stopped.Should().BeTrue();
@@ -223,11 +223,11 @@ namespace DXFeed.Net.Test.Platform
             communication.MessageSent += (sender, args) => confirmations.Add(args.Message);
 
             communication.Start();
-            Wait(() => started, 5000);
+            Tools.Wait(() => started, 5000);
             started.Should().BeTrue();
 
             communication.Send("a");
-            Wait(() => confirmations.Count == 1, 5000);
+            Tools.Wait(() => confirmations.Count == 1, 5000);
 
             messages.Count.Should().Be(1);
             confirmations.Count.Should().Be(1);
@@ -236,7 +236,7 @@ namespace DXFeed.Net.Test.Platform
             confirmations[0].Should().Be("a");
 
             communication.Send("b");
-            Wait(() => confirmations.Count == 2, 5000);
+            Tools.Wait(() => confirmations.Count == 2, 5000);
 
             messages.Count.Should().Be(2);
             confirmations.Count.Should().Be(2);
@@ -264,30 +264,18 @@ namespace DXFeed.Net.Test.Platform
 
             communication.Start();
 
-            Wait(() => started, 5000);
+            Tools.Wait(() => started, 5000);
             started.Should().BeTrue();
 
             currentMessage = "a";
-            Wait(() => receivedMessage == "a", 5000);
+            Tools.Wait(() => receivedMessage == "a", 5000);
             receivedMessage.Should().Be("a");
 
             currentMessage = "b";
-            Wait(() => receivedMessage == "b", 5000);
+            Tools.Wait(() => receivedMessage == "b", 5000);
             receivedMessage.Should().Be("b");
 
             communication.Close();
-        }
-
-        private void Wait(Func<bool> predicate, int timeout)
-        {
-            var limit = DateTime.Now.AddMilliseconds(timeout);
-            while (DateTime.Now < limit)
-            {
-                if (predicate())
-                    return;
-
-                Thread.Sleep(10);
-            }
-        }
+        }       
     }
 }
