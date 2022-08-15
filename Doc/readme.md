@@ -32,7 +32,7 @@ class Message
 class DXFeedMessage
 <<package>> DXFeedMessage
 
-DXFeedConnection <|-- IDXFeedConnection
+DXFeedConnection --|> IDXFeedConnection
 DXFeedConnection ..> Platform : uses
 DXFeedConnection ..> Message : uses
 DXFeedConnection ..> DXFeedMessage : uses
