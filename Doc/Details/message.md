@@ -6,6 +6,8 @@ The structure is quite self-explaining.
 
 ```mermaid
 classDiagram
+  direction RL
+
 
 class IMessageElement
 <<interface>> IMessageElement
@@ -43,9 +45,9 @@ IMessageElementDouble --|> IMessageElement
 IMessageElementBoolean --|> IMessageElement
 IMessageElementString --|> IMessageElement
 
-IMessageElementArray *-- IMessageElement : contains(index -> value)
+IMessageElementArray *-- "0..*" IMessageElement : contains(index -> value)
 
-IMessageElementObject *-- IMessageElement : contains(name -> value)
+IMessageElementObject *-- "0..*" IMessageElement : contains(name -> value)
 ```
 
 Each interface has an implementation. 
