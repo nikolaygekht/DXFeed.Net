@@ -20,6 +20,7 @@ DXFeedMessage --|> IDXFeedMessage : implements
 
 DXFeedMessage <|-- DXFeedMessageAuthorize
 DXFeedMessage <|-- DXFeedMessageHeartbeat
+DXFeedMessage <|-- DXFeedMessageSubscribeForQuotes
 ```
 
 **Responses:**
@@ -30,15 +31,13 @@ classDiagram
 class IDXFeedResponse
 <<interface>> IDXFeedResponse
 
-class DXFeedResponse
-
 class DXFeedResponseFactory
+
+class DXFeedResponse
 
 class DXFeedResponseAuthorize
 
 class DXFeedResponseHeartbeat
-
-class DXFeedAdvice
 
 DXFeedResponse --|> IDXFeedResponse : implements
 
@@ -48,7 +47,19 @@ DXFeedResponseAuthorize --|> DXFeedResponse
 
 DXFeedResponseHeartbeat --|> DXFeedResponse
 
+DXFeedResponseQuote --|> DXFeedResponse
+
+DXFeedResponseCandle --|> DXFeedResponse
+```
+
+```mermaid
+classDiagram
+
 DXFeedResponseAuthorize *-- "0..1" DXFeedAdvice
 
+
+DXFeedResponseQuote *-- "1..*" Quote
+
+DXFeedResponseCandle *-- "1..*" Candle
 
 ```

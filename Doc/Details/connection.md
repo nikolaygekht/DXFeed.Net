@@ -65,3 +65,36 @@ stateDiagram-v2
   disconnected --> readyToConnect : restart communicator
 ```
 
+## Subscription
+
+Classes
+
+```mermaid
+classDiagram
+
+class IDXFeedConnectionListener {
+  <<interface>>
+  +OnQuoteReceived(connection, quote : DXFeedResponseQuote)
+}
+
+class IDXFeedConnection {
+  <<interface>>
+  + SubscribeForQuotes(symbols : string[])
+  + UnsubscribeFromQuotes(symbols : string[])
+}
+
+ IDXFeedConnection ..> IDXFeedConnectionListener : notifies
+```
+
+Interaction
+
+```mermaid
+sequenceDiagram
+  Connection -) Application : status(readyToSubscribe)
+  Application -) Connection : subscribe(symbol)
+  Connection -) Application : quoteReceived(quote)
+  Connection -) Application : quoteReceived(quote)
+  Connection -) Application : quoteReceived(quote)
+  Application -) Connection : unsubscribe(symbol)
+
+```
