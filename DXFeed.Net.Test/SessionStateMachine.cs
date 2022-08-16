@@ -148,6 +148,29 @@ namespace DXFeed.Net.Test
         }
 
         [Fact]
+        public void UpdateTimeoutFromAuthorizationResponse()
+        {
+            var communicator = new Mock<ICommunicator>();
+            communicator.Setup(x => x.Active).Returns(true);
+
+            string sentMessage = null;
+            communicator.Setup(x => x.Send(It.IsAny<string>())).Callback<string>(message => { sentMessage = message; });
+
+            using var connection = new DXFeedConnection("mytoken", "myclient", 100, communicator.Object, false);
+            connection.State.Should().Be(DXFeedConnectionState.ReadyToSubscribe);
+            connection.HeartbitPeriod.Should().Be(100);
+            sentMessage = null;
+
+            communicator.Raise(x => x.MessageReceived -= null,
+                new CommunicatorMessageEventArgs(communicator.Object,
+                                                 "[ { \"channel\" : \"/meta/handshake\", \"successful\" : true, \"clientId\" : \"newClientId\", \"advice\" : { \"timeout\" : 200 } } ]"));
+
+            Tools.Wait(() => connection.HeartbitPeriod == 200, 5000);
+            connection.HeartbitPeriod.Should().Be(200);
+        }
+
+
+        [Fact]
         public void UpdateClientIdFromHeartbitResponse()
         {
             var communicator = new Mock<ICommunicator>();
@@ -156,55 +179,16 @@ namespace DXFeed.Net.Test
             string sentMessage = null;
             communicator.Setup(x => x.Send(It.IsAny<string>())).Callback<string>(message => { sentMessage = message; });
 
-            using var connection = new DXFeedConnection("mytoken", communicator.Object, false);
-
-            Tools.Wait(() => connection.State == DXFeedConnectionState.Connecting, 5000);
-
-            communicator.Raise(x => x.MessageReceived -= null,
-                new CommunicatorMessageEventArgs(communicator.Object,
-                                                 "[ { \"channel\" : \"/meta/handshake\", \"successful\" : true, \"clientId\" : \"myclient\" } ]"));
-
-            Tools.Wait(() => !string.IsNullOrEmpty(sentMessage), 5000);
-            connection.ClientId.Should().Be("myclient");
-
-            communicator.Raise(x => x.MessageReceived -= null,
-                new CommunicatorMessageEventArgs(communicator.Object,
-                                                 "[ { \"channel\" : \"/meta/connect\", \"successful\" : true, \"clientId\" : \"newClientId\" } ]"));
-
-            Tools.Wait(() => connection.State == DXFeedConnectionState.ReadyToSubscribe, 5000);
+            using var connection = new DXFeedConnection("mytoken", "myclient", 100, communicator.Object, false);
             connection.State.Should().Be(DXFeedConnectionState.ReadyToSubscribe);
-            connection.ClientId.Should().Be("newClientId");
-        }
-
-        [Fact]
-        public void UpdateHeartbitPeriodFromResponse()
-        {
-            var communicator = new Mock<ICommunicator>();
-            communicator.Setup(x => x.Active).Returns(true);
-
-            string sentMessage = null;
-            communicator.Setup(x => x.Send(It.IsAny<string>())).Callback<string>(message => { sentMessage = message; });
-
-            using var connection = new DXFeedConnection("mytoken", communicator.Object, false);
-            connection.HeartbitPeriod.Should().Be(5000);
-
-            Tools.Wait(() => connection.State == DXFeedConnectionState.Connecting, 5000);
-
+            connection.ClientId.Should().Be("myclient");
             sentMessage = null;
 
             communicator.Raise(x => x.MessageReceived -= null,
                 new CommunicatorMessageEventArgs(communicator.Object,
-                                                 "[ { \"channel\" : \"/meta/handshake\", \"successful\" : true, \"clientId\" : \"myclient\", \"advice\" : { \"timeout\" : 1000 } } ]"));
-            
-            Tools.Wait(() => !string.IsNullOrEmpty(sentMessage), 5000);
-            connection.HeartbitPeriod.Should().Be(1000);
-
-            communicator.Raise(x => x.MessageReceived -= null,
-                new CommunicatorMessageEventArgs(communicator.Object,
                                                  "[ { \"channel\" : \"/meta/connect\", \"successful\" : true, \"clientId\" : \"newClientId\" } ]"));
 
-            Tools.Wait(() => connection.State == DXFeedConnectionState.ReadyToSubscribe, 5000);
-            connection.State.Should().Be(DXFeedConnectionState.ReadyToSubscribe);
+            Tools.Wait(() => connection.ClientId == "newClientId", 5000);
             connection.ClientId.Should().Be("newClientId");
         }
 
@@ -212,35 +196,12 @@ namespace DXFeed.Net.Test
         public void SendingHeartbit()
         {
             var communicator = new Mock<ICommunicator>();
-            communicator.Setup(x => x.Active).Returns(false);
+            communicator.Setup(x => x.Active).Returns(true);
 
             string sentMessage = null;
             communicator.Setup(x => x.Send(It.IsAny<string>())).Callback<string>(message => { sentMessage = message; });
-
-            using var connection = new DXFeedConnection("mytoken", communicator.Object, false)
-            {
-                HeartbitPeriod = 100            //set heartbeat period to 100ms for test purpose
-            };
-
-            communicator.Setup(x => x.Active).Returns(true);
-            communicator.Raise(x => x.ReceiverStarted -= null, new CommunicatorEventArgs(communicator.Object));
-
-            Tools.Wait(() => connection.State == DXFeedConnectionState.Connecting, 5000);
-
-            sentMessage = null;
-            communicator.Raise(x => x.MessageReceived -= null,
-                new CommunicatorMessageEventArgs(communicator.Object,
-                                                 "[ { \"channel\" : \"/meta/handshake\", \"successful\" : true, \"clientId\" : \"myclient\" } ]"));
-
-            Tools.Wait(() => !string.IsNullOrEmpty(sentMessage), 5000);
-
-            sentMessage = null;
             
-            communicator.Raise(x => x.MessageReceived -= null,
-                new CommunicatorMessageEventArgs(communicator.Object,
-                                                 "[ { \"channel\" : \"/meta/connect\", \"successful\" : true } ]"));
-
-            Tools.Wait(() => connection.State == DXFeedConnectionState.ReadyToSubscribe, 5000);
+            using var connection = new DXFeedConnection("mytoken", "myclient", 100, communicator.Object, false);
             connection.State.Should().Be(DXFeedConnectionState.ReadyToSubscribe);
 
             //check it once!
