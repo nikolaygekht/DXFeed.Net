@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable S125 // Sections of code should not be commented out
+
 namespace DXFeed.Demo
 {
     public static class Program
@@ -27,6 +29,12 @@ namespace DXFeed.Demo
             transport.Connect(Configuration["dxfeed:url"]);
 
             using var communicator = new Communicator(transport, true);
+
+
+
+            //communicator.MessageSent += (sender, args) => Console.WriteLine("Raw Sent: {0}", args.Message);
+            communicator.MessageReceived += (sender, args) => Console.WriteLine("Raw Received: {0}", args.Message);
+
             using var connection = new DXFeedConnection(GetToken(), communicator, false);
             connection.SubscribeListener(new Listener());
 

@@ -14,5 +14,10 @@
         /// Heartbeat message
         /// </summary>
         Heartbeat,
+
+        /// <summary>
+        /// Subscribe for quotes message
+        /// </summary>
+        SubscribeForQuotes,
     }
 }

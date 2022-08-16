@@ -71,7 +71,7 @@ namespace DXFeed.Net
             mToken = token;
             ClientId = clientId;
             mHeartbeatResponseReceived = true;
-            
+
             mCommunicator = communicator;
             mDisposeCommunicator = disposeCommunicator;
             SubscribeToCommunicator();
@@ -82,6 +82,7 @@ namespace DXFeed.Net
                 IsBackground = true,
             };
             mHeartbeatSender.Start();
+            while (!mHeartbeatSender.IsAlive) Thread.Yield();
         }
 
         private void SubscribeToCommunicator()
@@ -213,7 +214,7 @@ namespace DXFeed.Net
 
                 if (element.ElementType == MessageElementType.Object &&
                     element is IMessageElementObject @object)
-                    ProcessMessage(@object);                
+                    ProcessMessage(@object);
             }
             catch (Exception e)
             {
@@ -227,7 +228,6 @@ namespace DXFeed.Net
         private void Authorize()
         {
             mAuthorizationSent = true;
-
             if (mHeartbeatSender == null || !mHeartbeatSender.IsAlive)
             {
                 mHeartbeatSender = new Thread(HeartbeatSender)
@@ -235,6 +235,7 @@ namespace DXFeed.Net
                     IsBackground = true,
                 };
                 mHeartbeatSender.Start();
+                while (!mHeartbeatSender.IsAlive) Thread.Yield();
             }
 
             var message = new DXFeedMessageAuthorize(mToken);
@@ -268,7 +269,7 @@ namespace DXFeed.Net
         /// <param name="authorize"></param>
         private void Process(DXFeedResponseAuthorize authorize)
         {
-            if (authorize.Successful) 
+            if (authorize.Successful)
             {
                 if (!string.IsNullOrEmpty(authorize.ClientId))
                 {
@@ -313,18 +314,15 @@ namespace DXFeed.Net
         {
             mListeners.CallStatusChange(this);
             var state = State;
-            if (state != DXFeedConnectionState.Disconnected && (mHeartbeatSender == null || !mHeartbeatSender.IsAlive))
-            {
-                mHeartbeatSender = new Thread(HeartbeatSender)
-                {
-                    IsBackground = true
-                };
-                mHeartbeatSender.Start();
-            }
-            else if (state == DXFeedConnectionState.Disconnected && mHeartbeatSender.IsAlive)
+
+            if (state == DXFeedConnectionState.Disconnected && mHeartbeatSender.IsAlive)
                 mStopHeartbit.Set();
+
             if (state == DXFeedConnectionState.ReadyToConnect && !mAuthorizationSent)
+            {
+                mAuthorizationSent = true;
                 Task.Run(() => Authorize());
+            }
 
         }
 
@@ -332,7 +330,7 @@ namespace DXFeed.Net
         /// The event to send a heartbeat message
         /// </summary>
         private readonly AutoResetEvent mStopHeartbit = new AutoResetEvent(false);
-        
+
         /// <summary>
         /// The period to send heartbit message in milliseconds
         /// 
@@ -340,6 +338,8 @@ namespace DXFeed.Net
         /// </summary>
         public int HeartbitPeriod { get; set; } = 5000;
 
+
+        private int mHeartbeatThreads = 0;
         /// <summary>
         /// The background thread to send heartbeat
         /// </summary>
@@ -364,5 +364,36 @@ namespace DXFeed.Net
                 }
             }
         }
+
+        /// <summary>
+        /// Associated communicator
+        /// </summary>
+        public ICommunicator Communicator => mCommunicator;
+
+        /// <summary>
+        /// Subscribe for quotes
+        /// </summary>
+        /// <param name="symbols"></param>
+        public void SubscribeForQuotes(string[] symbols)
+        {
+            if (ClientId != null)
+            {
+                var message = new DXFeedMessageSubscribeForQuotes(DXFeedSubscribeMode.Add, symbols, ClientId);
+                mCommunicator.Send(message.ToMessage());
+            }
+        }
+
+        /// <summary>
+        /// Unsubscribe from quotes
+        /// </summary>
+        public void UnsubscribeFromQuotes(string[] symbols)
+        {
+            if (ClientId != null)
+            {
+                var message = new DXFeedMessageSubscribeForQuotes(DXFeedSubscribeMode.Remove, symbols, ClientId);
+                mCommunicator.Send(message.ToMessage());
+            }
+        }
+
     }
 }

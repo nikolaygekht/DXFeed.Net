@@ -179,6 +179,7 @@ namespace DXFeed.Net.Platform
             {
                 if (mSendQueue.IsEmpty)
                     WaitHandle.WaitAny(handles, 1000);
+                
                 if (mExiting)
                     break;
 

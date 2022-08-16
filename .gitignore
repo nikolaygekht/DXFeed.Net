@@ -5,3 +5,4 @@ obj/
 TestResults/
 *.local.json
 *.nupkg
+dump.txt
