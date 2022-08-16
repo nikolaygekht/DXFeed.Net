@@ -24,11 +24,18 @@ namespace DXFeed.Demo
             {
                 if (!subscribed)
                 {
-                    connection.SubscribeForQuotes(new string[] { "AAPL" });
+                    connection.SubscribeForQuotes(new string[] { "AAPL", "MSFT" });
+                    Console.WriteLine("Sending subscription....");
                     subscribed = true;
                 }
             }
             Console.WriteLine("Status changed: {0}", state);
+        }
+
+        public void OnQuoteReceived(IDXFeedConnection connection, DXFeedResponseQuote quote)
+        {
+            foreach (var q in quote)
+                Console.WriteLine("{0} {1}@{2}:{5} {3}@{4}:{6}", q.Symbol, q.Bid, q.BidTime, q.Ask, q.AskTime, q.BidSize, q.AskSize);
         }
     }
 }

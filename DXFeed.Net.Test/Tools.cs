@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DXFeed.Net.Test
 {
+
     internal static class Tools
     {
         public static void Wait(Func<bool> predicate, int timeout)

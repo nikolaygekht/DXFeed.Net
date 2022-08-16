@@ -33,7 +33,7 @@ namespace DXFeed.Demo
 
 
             //communicator.MessageSent += (sender, args) => Console.WriteLine("Raw Sent: {0}", args.Message);
-            communicator.MessageReceived += (sender, args) => Console.WriteLine("Raw Received: {0}", args.Message);
+            //communicator.MessageReceived += (sender, args) => Console.WriteLine("Raw Received: {0}", args.Message);
 
             using var connection = new DXFeedConnection(GetToken(), communicator, false);
             connection.SubscribeListener(new Listener());

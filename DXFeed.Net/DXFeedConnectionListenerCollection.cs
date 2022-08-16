@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DXFeed.Net.DXFeedMessage;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -85,5 +86,8 @@ namespace DXFeed.Net
 
         public Task CallException(IDXFeedConnection connection, Exception exception)
             => CallListenersAsync((listener) => listener.OnException(connection, exception));
+
+        internal Task CallOnQuote(IDXFeedConnection connection, DXFeedResponseQuote quote)
+            => CallListenersAsync((listener) => listener.OnQuoteReceived(connection, quote));
     }
 }

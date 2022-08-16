@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DXFeed.Net.DXFeedMessage;
+using System;
 
 namespace DXFeed.Net
 {
@@ -20,5 +21,12 @@ namespace DXFeed.Net
         /// <param name="connection"></param>
         /// <param name="status"></param>
         void OnException(IDXFeedConnection connection, Exception exception);
+
+        /// <summary>
+        /// Method called when the quote is received
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="quote"></param>
+        void OnQuoteReceived(IDXFeedConnection connection, DXFeedResponseQuote quote);
     }
 }

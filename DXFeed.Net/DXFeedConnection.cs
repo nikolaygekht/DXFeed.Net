@@ -17,7 +17,7 @@ namespace DXFeed.Net
     {
         private readonly ICommunicator mCommunicator;
         private readonly bool mDisposeCommunicator;
-        private Thread mHeartbeatSender;
+        private Thread? mHeartbeatSender;
         private readonly string mToken;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace DXFeed.Net
         /// </summary>
         /// <param name="communicator"></param>
         /// <param name="disposeCommunicator"></param>
-        public DXFeedConnection(string token, ICommunicator communicator, bool disposeCommunicator)
+        public DXFeedConnection(string? token, ICommunicator communicator, bool disposeCommunicator)
         {
             if (token == null)
                 throw new ArgumentNullException(nameof(token));
@@ -260,6 +260,9 @@ namespace DXFeed.Net
                 case DXFeedResponseHeartbeat heartbeat:
                     Process(heartbeat);
                     break;
+                case DXFeedResponseQuote quote:
+                    mListeners.CallOnQuote(this, quote);
+                    break;
             }
         }
 
@@ -315,7 +318,7 @@ namespace DXFeed.Net
             mListeners.CallStatusChange(this);
             var state = State;
 
-            if (state == DXFeedConnectionState.Disconnected && mHeartbeatSender.IsAlive)
+            if (state == DXFeedConnectionState.Disconnected && mHeartbeatSender != null && mHeartbeatSender.IsAlive)
                 mStopHeartbit.Set();
 
             if (state == DXFeedConnectionState.ReadyToConnect && !mAuthorizationSent)
@@ -338,8 +341,6 @@ namespace DXFeed.Net
         /// </summary>
         public int HeartbitPeriod { get; set; } = 5000;
 
-
-        private int mHeartbeatThreads = 0;
         /// <summary>
         /// The background thread to send heartbeat
         /// </summary>

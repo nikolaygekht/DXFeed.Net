@@ -19,5 +19,10 @@
         /// Heartbeat message
         /// </summary>
         Heartbeat,
+
+        /// <summary>
+        /// Quote information
+        /// </summary>
+        Quote, 
     }
 }
