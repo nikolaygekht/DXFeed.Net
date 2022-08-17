@@ -19,7 +19,9 @@ The solution consists of three main projects:
 
 This is an experimental prototype project. 
 
-The author provides no warranties of any kind of commercial usefulness, freedom from errors. Use this code at your own risk. 
+The code is created solely to validate the hypothesis that you need nothing beyond an ordinary websocket transport to work with a CometD feed. 
+
+The author provides no warranties of any kind. Again: I do not promise commercial usefulness, freedom from errors or whatever you may wish to expect from this code :-). Use this code at your own risk. 
 
 The project is not paid or otherwise endorsed by dxFeed or any other company. 
 
