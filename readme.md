@@ -7,7 +7,7 @@ The reason behind of that is that the target platform is not supported
 by any of provided dxFeed Client APIs. C# is used just because I consider it
 the easiest way to prototype :-).
 
-To learn about the structure of the API read [documentation](doc/readme.md).
+To learn about the structure of the API read [documentation](Doc/readme.md).
 
 The solution consists of three main projects:
 
