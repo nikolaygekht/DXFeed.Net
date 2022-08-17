@@ -6,7 +6,7 @@ namespace DXFeed.Net.DXFeedMessage
     /// <summary>
     /// Subscribe for quotes message
     /// </summary>
-    public class DXFeedMessageSubscribeForQuotes : DXFeedMessage
+    public partial class DXFeedMessageSubscribeForQuotes : DXFeedMessage
     {
         private readonly string[] mSymbols;
         private readonly string mClientId;
@@ -44,7 +44,7 @@ namespace DXFeed.Net.DXFeedMessage
 
             mSymbols = new string[symbols.Length];
             symbols.CopyTo(mSymbols, 0);
-            
+
             mClientId = clientId;
             mMode = mode;
         }
@@ -57,7 +57,7 @@ namespace DXFeed.Net.DXFeedMessage
 
             message["data"] = new MessageElementObject()
             {
-                { mMode == DXFeedSubscribeMode.Add ? "add" : "remove", 
+                { mMode == DXFeedSubscribeMode.Add ? "add" : "remove",
                            new MessageElementObject() { { "Quote", symbols } } },
             };
             message["clientId"] = new MessageElementString(mClientId);

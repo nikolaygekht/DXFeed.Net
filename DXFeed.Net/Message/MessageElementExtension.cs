@@ -80,11 +80,11 @@ namespace DXFeed.Net.Message
             value = false;
             switch (element)
             {
-                case IMessageElementInteger intValue:
+                case IMessageElementInteger _:
                     return false;
-                case IMessageElementLong longValue:
+                case IMessageElementLong _:
                     return false;
-                case IMessageElementDouble doubleValue:
+                case IMessageElementDouble _:
                     return false;
                 case IMessageElementBoolean booleanValue:
                     value = booleanValue.Value;
@@ -128,7 +128,7 @@ namespace DXFeed.Net.Message
                 case IMessageElementDouble doubleValue:
                     value = (int)doubleValue.Value;
                     return true;
-                case IMessageElementBoolean booleanValue:
+                case IMessageElementBoolean _:
                     return false;
                 case IMessageElementString stringValue:
                     if (int.TryParse(stringValue.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
@@ -164,7 +164,7 @@ namespace DXFeed.Net.Message
                 case IMessageElementDouble doubleValue:
                     value = (long)doubleValue.Value;
                     return true;
-                case IMessageElementBoolean booleanValue:
+                case IMessageElementBoolean _:
                     return false;
                 case IMessageElementString stringValue:
                     if (long.TryParse(stringValue.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
@@ -200,7 +200,7 @@ namespace DXFeed.Net.Message
                 case IMessageElementDouble doubleValue:
                     value = doubleValue.Value;
                     return true;
-                case IMessageElementBoolean booleanValue:
+                case IMessageElementBoolean _:
                     return false;
                 case IMessageElementString stringValue:
                     if (double.TryParse(stringValue.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var v))

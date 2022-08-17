@@ -21,6 +21,9 @@ DXFeedMessage --|> IDXFeedMessage : implements
 DXFeedMessage <|-- DXFeedMessageAuthorize
 DXFeedMessage <|-- DXFeedMessageHeartbeat
 DXFeedMessage <|-- DXFeedMessageSubscribeForQuotes
+DXFeedMessage <|-- DXFeedMessageSubscribeForCandles
+DXFeedCandleRequest "1..*" --* DXFeedMessageSubscribeForCandles
+DXFeedCandleSymbol --* DXFeedCandleRequest
 ```
 
 **Responses:**

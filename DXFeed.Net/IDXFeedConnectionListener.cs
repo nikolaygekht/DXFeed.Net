@@ -28,5 +28,12 @@ namespace DXFeed.Net
         /// <param name="connection"></param>
         /// <param name="quote"></param>
         void OnQuoteReceived(IDXFeedConnection connection, DXFeedResponseQuote quote);
+
+        /// <summary>
+        /// Method called when the candle is received
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="quote"></param>
+        void OnCandleReceived(IDXFeedConnection connection, DXFeedResponseCandle candle);
     }
 }

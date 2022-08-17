@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# S1066: Collapsible "if" statements should be merged
+dotnet_diagnostic.S1066.severity = none

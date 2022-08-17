@@ -19,5 +19,10 @@
         /// Subscribe for quotes message
         /// </summary>
         SubscribeForQuotes,
+
+        /// <summary>
+        /// Subscribe for candles message
+        /// </summary>
+        SubscribeForCandles,
     }
 }

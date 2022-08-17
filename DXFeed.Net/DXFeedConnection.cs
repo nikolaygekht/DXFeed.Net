@@ -27,14 +27,8 @@ namespace DXFeed.Net
         /// <param name="disposeCommunicator"></param>
         public DXFeedConnection(string? token, ICommunicator communicator, bool disposeCommunicator)
         {
-            if (token == null)
-                throw new ArgumentNullException(nameof(token));
-
-            if (communicator == null)
-                throw new ArgumentNullException(nameof(communicator));
-
-            mToken = token;
-            mCommunicator = communicator;
+            mToken = token ?? throw new ArgumentNullException(nameof(token));
+            mCommunicator = communicator ?? throw new ArgumentNullException(nameof(communicator));
             mDisposeCommunicator = disposeCommunicator;
             SubscribeToCommunicator();
             if (mCommunicator.Active)
@@ -53,9 +47,6 @@ namespace DXFeed.Net
         /// <exception cref="ArgumentException"></exception>
         internal DXFeedConnection(string token, string clientId, int timeout, ICommunicator communicator, bool disposeCommunicator)
         {
-            if (token == null)
-                throw new ArgumentNullException(nameof(token));
-
             if (communicator == null)
                 throw new ArgumentNullException(nameof(communicator));
 
@@ -68,7 +59,8 @@ namespace DXFeed.Net
             if (!communicator.Active)
                 throw new ArgumentException("Communicator must be active at start", nameof(communicator));
 
-            mToken = token;
+            mToken = token ?? throw new ArgumentNullException(nameof(token));
+
             ClientId = clientId;
             mHeartbeatResponseReceived = true;
 
@@ -263,6 +255,9 @@ namespace DXFeed.Net
                 case DXFeedResponseQuote quote:
                     mListeners.CallOnQuote(this, quote);
                     break;
+                case DXFeedResponseCandle candle:
+                    mListeners.CallOnCandle(this, candle);
+                    break;
             }
         }
 
@@ -396,5 +391,29 @@ namespace DXFeed.Net
             }
         }
 
+        /// <summary>
+        /// Subscribe for candles
+        /// </summary>
+        /// <param name="candles"></param>
+        public void SubscribeForCandles(DXFeedCandleRequest[] candles)
+        {
+            if (ClientId != null)
+            {
+                var message = new DXFeedMessageSubscribeForCandles(DXFeedSubscribeMode.Add, candles, ClientId);
+                mCommunicator.Send(message.ToMessage());
+            }
+        }
+
+        /// <summary>
+        /// Unsubscribe from candles
+        /// </summary>
+        public void UnsubscribeFromCandles(DXFeedCandleRequest[] candles)
+        {
+            if (ClientId != null)
+            {
+                var message = new DXFeedMessageSubscribeForCandles(DXFeedSubscribeMode.Remove, candles, ClientId);
+                mCommunicator.Send(message.ToMessage());
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DXFeed.Net.Platform;
+﻿using DXFeed.Net.DXFeedMessage;
+using DXFeed.Net.Platform;
 using System;
 
 namespace DXFeed.Net
@@ -33,17 +34,28 @@ namespace DXFeed.Net
         /// <summary>
         /// Associated communicator
         /// </summary>
-        public ICommunicator Communicator { get; }
+        ICommunicator Communicator { get; }
 
         /// <summary>
         /// Subscribe for quotes
         /// </summary>
         /// <param name="symbols"></param>
-        public void SubscribeForQuotes(string[] symbols);
+        void SubscribeForQuotes(string[] symbols);
 
         /// <summary>
         /// Unsubscribe from quotes
         /// </summary>
-        public void UnsubscribeFromQuotes(string[] symbols);
+        void UnsubscribeFromQuotes(string[] symbols);
+
+        /// <summary>
+        /// Subscribe for candles
+        /// </summary>
+        /// <param name="candles"></param>
+        void SubscribeForCandles(DXFeedCandleRequest[] candles);
+
+        /// <summary>
+        /// Unsubscribe from candles
+        /// </summary>
+        void UnsubscribeFromCandles(DXFeedCandleRequest[] candles);
     }
 }

@@ -40,7 +40,7 @@ namespace DXFeed.Demo
 
             communicator.Start();
 
-            while (Console.ReadKey().Key != ConsoleKey.Escape) ;
+            while (Console.ReadKey().Key != ConsoleKey.Escape) Thread.Yield();
         }
 
         private static string? GetToken()

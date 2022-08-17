@@ -69,32 +69,55 @@ stateDiagram-v2
 
 Classes
 
+See also [dxFeed Symbol Guide](https://downloads.dxfeed.com/specifications/dxFeed-Symbol-Guide.pdf)
+
+The candle symbol format is `symbol{=aggregationPeriod}` Examples of aggregation period are `d`, `4h`, `1h`, `15m`, `1m`.
+
+The candle history is always received from the date requested up to now. 
+
+
 ```mermaid
 classDiagram
 
 class IDXFeedConnectionListener {
   <<interface>>
   +OnQuoteReceived(connection, quote : DXFeedResponseQuote)
+  +OnCandleReceived(connection, quote : DXFeedResponseCandle)
 }
 
 class IDXFeedConnection {
   <<interface>>
   + SubscribeForQuotes(symbols : string[])
   + UnsubscribeFromQuotes(symbols : string[])
+  + SubscribeForCandles(requests : DXFeedCandleRequest[])
+  + UnsubscribeFromCandles(requests : DXFeedCandleRequest[])
 }
 
  IDXFeedConnection ..> IDXFeedConnectionListener : notifies
 ```
 
-Interaction
+Interaction on quotes
 
 ```mermaid
 sequenceDiagram
   Connection -) Application : status(readyToSubscribe)
   Application -) Connection : subscribe(symbol)
-  Connection -) Application : quoteReceived(quote)
-  Connection -) Application : quoteReceived(quote)
-  Connection -) Application : quoteReceived(quote)
+  Connection -) Application : *quoteReceived(quote)
+  Application -) Connection : unsubscribe(symbol)
+
+```
+
+Interaction on candles
+
+```mermaid
+sequenceDiagram
+  Connection -) Application : status(readyToSubscribe)
+  Application -) Connection : subscribe(candleRequest)
+  Connection -) Application : candleReceived(currentCandle)
+  Connection -) Application : candleReceived(candle)
+  Connection -) Application : candleReceived(firstCandle)
+  Connection -) Application : candleReceived(candle w NaN values)
+  Connection -) Application : *candleReceived(currentCandle)
   Application -) Connection : unsubscribe(symbol)
 
 ```

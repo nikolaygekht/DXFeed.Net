@@ -23,6 +23,11 @@
         /// <summary>
         /// Quote information
         /// </summary>
-        Quote, 
+        Quote,
+
+        /// <summary>
+        /// Candle information
+        /// </summary>
+        Candle,
     }
 }

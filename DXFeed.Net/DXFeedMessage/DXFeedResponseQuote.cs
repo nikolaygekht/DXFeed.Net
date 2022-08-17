@@ -3,6 +3,10 @@ using System;
 using System.Collections.Generic;
 using DXFeed.Net.Platform;
 using System.Collections;
+using static DXFeed.Net.DXFeedMessage.DXFeedResponseQuote;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace DXFeed.Net.DXFeedMessage
 {
@@ -30,6 +34,7 @@ namespace DXFeed.Net.DXFeedMessage
         /// <returns></returns>
         public Quote this[int index] => mQuotes[index];
 
+        #region Quote
         /// <summary>
         /// One quote
         /// </summary>
@@ -44,6 +49,19 @@ namespace DXFeed.Net.DXFeedMessage
             public double? AskSize { get; }
             public string? BidExchangeCode { get; }
             public string? AskExchangeCode { get; }
+
+            public Quote(string? symbol, DateTime? bidTime, DateTime? askTime, double? bid, double? ask, double? bidSize, double? askSize, string? bidExchangeCode, string? askExchangeCode)
+            {
+                Symbol = symbol;
+                BidTime = bidTime;
+                AskTime = askTime;
+                Bid = bid;
+                Ask = ask;
+                BidSize = bidSize;
+                AskSize = askSize;
+                BidExchangeCode = bidExchangeCode;
+                AskExchangeCode = askExchangeCode;
+            }
 
             internal Quote(List<string> fieldDictionary, IMessageElementArray values, int valuesBase = 0) 
             {
@@ -114,6 +132,7 @@ namespace DXFeed.Net.DXFeedMessage
                 }
             }
         }
+        #endregion
 
         /// <summary>
         /// Constructor
@@ -134,4 +153,6 @@ namespace DXFeed.Net.DXFeedMessage
 
         IEnumerator IEnumerable.GetEnumerator() => mQuotes.GetEnumerator();
     }
+
 }
+

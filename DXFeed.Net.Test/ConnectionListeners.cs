@@ -55,19 +55,19 @@ namespace DXFeed.Net.Test
 
             var collection = new DXFeedConnectionListenerCollection();
 
-            Action x = () =>
+            void x()
             {
                 ++ready;
-                while (ready != 2) ; //sync start
+                while (ready != 2) Thread.Yield(); //sync start
                 for (int i = 0; i < one; i++)
                 {
                     var listener = new Mock<IDXFeedConnectionListener>().Object;
                     collection.SubscribeListener(listener);
-                    if (i % 2 == 0) 
+                    if (i % 2 == 0)
                         collection.UnsubscribeListener(listener);
                     Interlocked.Increment(ref total);
                 }
-            };
+            }
 
             var t1 = Task.Run(x);
             var t2 = Task.Run(x);
@@ -82,7 +82,7 @@ namespace DXFeed.Net.Test
         [Fact]
         public async Task InvokeStatus()
         {
-            var thisTid = Thread.CurrentThread.ManagedThreadId;
+            var thisTid = Environment.CurrentManagedThreadId;
             var eventTid = 0;
             IDXFeedConnection connectionPassed = null;
             DXFeedConnectionState statusPassed = DXFeedConnectionState.Disconnected;
@@ -93,7 +93,7 @@ namespace DXFeed.Net.Test
             listener.Setup(x => x.OnStatusChanged(It.IsAny<IDXFeedConnection>(), It.IsAny<DXFeedConnectionState>()))
                 .Callback<IDXFeedConnection, DXFeedConnectionState>((connection, status) =>
                 {
-                    eventTid = Thread.CurrentThread.ManagedThreadId;
+                    eventTid = Environment.CurrentManagedThreadId;
                     connectionPassed = connection;
                     statusPassed = status;
                 });

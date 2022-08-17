@@ -50,7 +50,6 @@ namespace DXFeed.Net.DXFeedMessage
         /// <param name="message"></param>
         protected virtual void ConfigureMessage(IMessageElementObject message)
         {
-            return;
         }
     }
 }

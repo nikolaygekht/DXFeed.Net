@@ -8,8 +8,8 @@ namespace DXFeed.Net.DXFeedMessage
     /// </summary>
     internal static class DXFeedResponseParser
     {
-        private static List<string> mQuoteFields = null;
-        private static List<string> mCandleFields = null;
+        private static List<string>? mQuoteFields = null;
+        private static List<string>? mCandleFields = null;
 
         /// <summary>
         /// Converts an array into a list of strings
@@ -121,6 +121,20 @@ namespace DXFeed.Net.DXFeedMessage
                 if (arr.Length < meta.Count)
                     return null;
                 return new DXFeedResponseQuote(meta, arr);
+            }
+            if (type == "Candle")
+            {
+                var meta = mCandleFields;
+                if (meta == null)
+                    return null;
+
+                var data1 = data[1];
+                if (data1.ElementType != MessageElementType.Array)
+                    return null;
+                var arr = data1.As<IMessageElementArray>();
+                if (arr.Length < meta.Count)
+                    return null;
+                return new DXFeedResponseCandle(meta, arr);
             }
             return null;
         }

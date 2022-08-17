@@ -1,5 +1,9 @@
 # DXFeed CometD Client
 
+## Abilities
+
+The project can connect and keep connection with dxFeed CometD server and allows to subscribe for quotes and candle histories. 
+
 ## Purpose
 
 The project is a model of architecture of a dxfeed cometD based client which relies only at pure websocket API and json serialization provided by the platform.

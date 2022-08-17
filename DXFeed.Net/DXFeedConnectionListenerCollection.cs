@@ -89,5 +89,8 @@ namespace DXFeed.Net
 
         internal Task CallOnQuote(IDXFeedConnection connection, DXFeedResponseQuote quote)
             => CallListenersAsync((listener) => listener.OnQuoteReceived(connection, quote));
+
+        internal Task CallOnCandle(IDXFeedConnection connection, DXFeedResponseCandle candle)
+            => CallListenersAsync((listener) => listener.OnCandleReceived(connection, candle));
     }
 }
